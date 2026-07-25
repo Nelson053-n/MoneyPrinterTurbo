@@ -645,7 +645,7 @@ def combine_videos(
                     
             shuffle_side = random.choice(["left", "right", "top", "bottom"])
             if transition_value in (None, VideoTransitionMode.none.value):
-                clip = clip
+                pass
             elif transition_value == VideoTransitionMode.fade_in.value:
                 clip = video_effects.fadein_transition(clip, 1)
             elif transition_value == VideoTransitionMode.fade_out.value:
@@ -693,7 +693,11 @@ def combine_videos(
             video_duration += clip_duration_saved
             
         except Exception as e:
-            logger.error(f"failed to process clip: {str(e)}")
+            logger.error(
+                f"failed to process clip {i+1} "
+                f"(source: {subclipped_item.file_path}): {str(e)}"
+            )
+            continue
     
     # loop processed clips until the video duration covers the audio duration and the small safety margin.
     if video_duration < required_video_duration:

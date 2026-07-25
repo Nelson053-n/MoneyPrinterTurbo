@@ -26,6 +26,7 @@ from app.models.schema import (
 from app.services import llm, voice
 from app.services import task as tm
 from app.utils import utils
+from webui.utils.text_utils import parse_chatterbox_voices, detect_audio_mime
 
 st.set_page_config(
     page_title="MoneyPrinterTurbo",
@@ -145,15 +146,6 @@ DEFAULT_CHATTERBOX_MODEL = "chatterbox"
 DEFAULT_CHATTERBOX_VOICES = ["default-Female"]
 
 
-def _parse_chatterbox_voices(voices):
-    # Chatterbox 是自托管服务，音色列表由用户在 WebUI 中手动输入。
-    # 这里统一兼容 TOML 数组和输入框里的逗号分隔字符串，避免下拉框、
-    # 试听按钮和后续生成流程使用不同格式导致状态不一致。
-    if isinstance(voices, str):
-        return [v.strip() for v in voices.split(",") if v.strip()]
-    return [str(v).strip() for v in voices or [] if str(v).strip()]
-
-
 def _sync_chatterbox_config_from_session_state():
     # Streamlit 的按钮会触发整页 rerun，而 Chatterbox 配置输入框位于
     # “试听语音合成”按钮之后。如果试听时只读取 config.chatterbox，可能拿不到
@@ -176,33 +168,12 @@ def _sync_chatterbox_config_from_session_state():
         )
         or DEFAULT_CHATTERBOX_MODEL
     ).strip()
-    config.chatterbox["voices"] = _parse_chatterbox_voices(
+    config.chatterbox["voices"] = parse_chatterbox_voices(
         st.session_state.get(
             "chatterbox_voices_input",
             config.chatterbox.get("voices") or DEFAULT_CHATTERBOX_VOICES,
         )
     )
-
-
-def _detect_audio_mime(audio_file: str, audio_bytes: bytes) -> str:
-    # 有些 OpenAI-compatible TTS 服务，例如 travisvn/chatterbox-tts-api，
-    # 即使请求 response_format=mp3，也会返回 WAV 内容。WebUI 试听如果固定
-    # 使用 audio/mp3，浏览器可能无法播放，因此这里按文件头识别真实格式。
-    header = audio_bytes[:12]
-    if header.startswith(b"RIFF") and header[8:12] == b"WAVE":
-        return "audio/wav"
-    if header.startswith(b"ID3") or header[:2] in (b"\xff\xfb", b"\xff\xf3", b"\xff\xf2"):
-        return "audio/mp3"
-    if header.startswith(b"OggS"):
-        return "audio/ogg"
-    ext = os.path.splitext(audio_file)[1].lower()
-    return {
-        ".wav": "audio/wav",
-        ".m4a": "audio/mp4",
-        ".aac": "audio/aac",
-        ".ogg": "audio/ogg",
-        ".flac": "audio/flac",
-    }.get(ext, "audio/mp3")
 
 
 if "video_subject" not in st.session_state:
@@ -1308,7 +1279,7 @@ with middle_panel:
                     if audio_bytes:
                         st.audio(
                             audio_bytes,
-                            format=_detect_audio_mime(audio_file, audio_bytes),
+                            format=detect_audio_mime(audio_file, audio_bytes),
                         )
                     else:
                         logger.error(f"voice preview audio file is empty: {audio_file}")
@@ -1461,7 +1432,7 @@ with middle_panel:
             ).strip()
 
             _saved_chatterbox_voices = (
-                _parse_chatterbox_voices(config.chatterbox.get("voices"))
+                parse_chatterbox_voices(config.chatterbox.get("voices"))
                 or DEFAULT_CHATTERBOX_VOICES
             )
             if isinstance(_saved_chatterbox_voices, list):
@@ -1472,7 +1443,7 @@ with middle_panel:
                 key="chatterbox_voices_input",
                 placeholder="default-Female, narrator-Male",
             )
-            config.chatterbox["voices"] = _parse_chatterbox_voices(chatterbox_voices)
+            config.chatterbox["voices"] = parse_chatterbox_voices(chatterbox_voices)
 
             st.info(
                 "Chatterbox TTS Settings (self-hosted):\n"

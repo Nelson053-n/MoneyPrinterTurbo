@@ -16,6 +16,17 @@ from app.utils import utils
 _api_key_counter = 0
 _api_key_lock = threading.Lock()
 
+# Number of results requested per search query, per provider.
+PEXELS_PER_PAGE = 20
+PIXABAY_PER_PAGE = 50
+COVERR_PAGE_SIZE = 20
+
+# (connect timeout, read timeout) in seconds for stock video search API calls.
+API_TIMEOUT = (30, 60)
+
+# User-Agent sent with stock video search and download requests.
+DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+
 
 def _get_tls_verify() -> bool:
     # 默认开启 TLS 证书校验，防止素材搜索和下载过程被中间人篡改。
@@ -63,10 +74,10 @@ def search_videos_pexels(
     api_key = get_api_key("pexels_api_keys")
     headers = {
         "Authorization": api_key,
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+        "User-Agent": DEFAULT_USER_AGENT,
     }
     # Build URL
-    params = {"query": search_term, "per_page": 20, "orientation": video_orientation}
+    params = {"query": search_term, "per_page": PEXELS_PER_PAGE, "orientation": video_orientation}
     query_url = f"https://api.pexels.com/videos/search?{urlencode(params)}"
     logger.info(f"searching videos: {query_url}, with proxies: {config.proxy}")
 
@@ -76,7 +87,7 @@ def search_videos_pexels(
             headers=headers,
             proxies=config.proxy,
             verify=_get_tls_verify(),
-            timeout=(30, 60),
+            timeout=API_TIMEOUT,
         )
         response = r.json()
         video_items = []
@@ -123,7 +134,7 @@ def search_videos_pixabay(
     params = {
         "q": search_term,
         "video_type": "all",  # Accepted values: "all", "film", "animation"
-        "per_page": 50,
+        "per_page": PIXABAY_PER_PAGE,
         "key": api_key,
     }
     query_url = f"https://pixabay.com/api/videos/?{urlencode(params)}"
@@ -131,7 +142,7 @@ def search_videos_pixabay(
 
     try:
         r = requests.get(
-            query_url, proxies=config.proxy, verify=_get_tls_verify(), timeout=(30, 60)
+            query_url, proxies=config.proxy, verify=_get_tls_verify(), timeout=API_TIMEOUT
         )
         response = r.json()
         video_items = []
@@ -193,7 +204,7 @@ def search_videos_coverr(
     headers = {"Authorization": f"Bearer {api_key}"}
     params = {
         "query": search_term,
-        "page_size": 20,
+        "page_size": COVERR_PAGE_SIZE,
         "urls": "true",
         "sort": "popular",
     }
@@ -206,7 +217,7 @@ def search_videos_coverr(
             headers=headers,
             proxies=config.proxy,
             verify=_get_tls_verify(),
-            timeout=(30, 60),
+            timeout=API_TIMEOUT,
         )
         response = r.json()
         video_items: List[MaterialInfo] = []
@@ -259,7 +270,7 @@ def save_video(video_url: str, save_dir: str = "") -> str:
         return video_path
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+        "User-Agent": DEFAULT_USER_AGENT
     }
 
     # if video does not exist, download it

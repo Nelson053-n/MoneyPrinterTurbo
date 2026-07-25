@@ -35,6 +35,12 @@ NO_VOICE_NAME = "no-voice"
 # 更明确的 `no-voice`。
 _NO_VOICE_ALIASES = {NO_VOICE_NAME, "none"}
 
+# 无配音模式时长估算系数（见 estimate_no_voice_duration）。
+_CJK_CHARS_PER_SECOND = 4.2  # 中文等 CJK 字符：约 4.2 字/秒
+_WORDS_PER_SECOND = 2.7  # 英文/数字单词：约 2.7 词/秒
+_OTHER_CHARS_PER_SECOND = 4.0  # 其他语种文字：约 4.0 字符/秒兜底
+_PAUSE_SECONDS_PER_SENTENCE = 0.35  # 每个断句补充的停顿秒数
+
 
 def _configure_pydub_ffmpeg(audio_segment_cls):
     configured_ffmpeg = utils.get_ffmpeg_binary()
@@ -297,10 +303,10 @@ def estimate_no_voice_duration(text: str) -> float:
     other_text_chars = max(other_text_chars - cjk_chars - ascii_word_chars, 0)
     sentence_count = max(len(utils.split_string_by_punctuations(normalized_text)), 1)
 
-    cjk_duration = cjk_chars / 4.2
-    word_duration = words / 2.7
-    other_text_duration = other_text_chars / 4.0
-    pause_duration = max(sentence_count - 1, 0) * 0.35
+    cjk_duration = cjk_chars / _CJK_CHARS_PER_SECOND
+    word_duration = words / _WORDS_PER_SECOND
+    other_text_duration = other_text_chars / _OTHER_CHARS_PER_SECOND
+    pause_duration = max(sentence_count - 1, 0) * _PAUSE_SECONDS_PER_SENTENCE
     return max(3.0, cjk_duration + word_duration + other_text_duration + pause_duration)
 
 
