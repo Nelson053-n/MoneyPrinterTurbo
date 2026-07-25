@@ -398,6 +398,8 @@ model_id = "eleven_multilingual_v2"
 
 [ui]
 # UI related settings
+# 界面语言 (UI language). Default "ru" (Russian). Available: en, ru, zh, de, es, pt, tr, vi, id
+language = "ru"
 # 是否隐藏日志信息
 # Whether to hide logs in the UI
 hide_log = false

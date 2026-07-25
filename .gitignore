@@ -37,3 +37,7 @@ streamlit.log
 .codegraph
 /docs/superpowers
 .understand-anything
+
+# Claude Code session artifacts
+.claude/
+docker-compose.local.yml

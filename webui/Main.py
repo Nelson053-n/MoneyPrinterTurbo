@@ -42,14 +42,97 @@ st.set_page_config(
 )
 
 
-streamlit_style = """
+custom_css = """
 <style>
-h1 {
-    padding-top: 0 !important;
+/* ---- Визуальная полировка: только косметика, без изменения layout ---- */
+
+/* Отступы основного контента */
+.block-container {
+    padding-top: 2.2rem !important;
+    padding-bottom: 3rem !important;
 }
+
+/* Заголовки */
+h1 { padding-top: 0 !important; letter-spacing: -0.01em; }
+h2, h3 { letter-spacing: -0.005em; }
+
+/* Кнопки: скругление, плавный hover-подъём */
+.stButton > button,
+.stDownloadButton > button {
+    border-radius: 10px !important;
+    border: 1px solid var(--border-color, #2A2E3D) !important;
+    transition: transform 0.06s ease, box-shadow 0.15s ease, border-color 0.15s ease, filter 0.15s ease !important;
+    font-weight: 600 !important;
+}
+.stButton > button:hover,
+.stDownloadButton > button:hover {
+    border-color: var(--primary-color, #6C5CE7) !important;
+    box-shadow: 0 2px 10px rgba(108, 92, 231, 0.25) !important;
+    transform: translateY(-1px) !important;
+}
+.stButton > button:active,
+.stDownloadButton > button:active {
+    transform: translateY(0) !important;
+}
+.stButton > button[kind="primary"]:hover {
+    filter: brightness(1.08) !important;
+}
+
+/* Контейнеры с рамкой -> мягкие карточки */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-radius: 14px !important;
+    border-color: var(--border-color, #2A2E3D) !important;
+}
+
+/* Expander: вид карточки */
+.stExpander {
+    border-radius: 12px !important;
+    border: 1px solid var(--border-color, #2A2E3D) !important;
+    overflow: hidden;
+}
+.stExpander summary,
+.stExpander [data-testid="stExpanderToggleIcon"] {
+    transition: background-color 0.12s ease, color 0.12s ease;
+}
+.stExpander summary:hover {
+    color: var(--primary-color, #6C5CE7) !important;
+}
+.stExpander summary p { font-weight: 600 !important; }
+
+/* Вкладки: чёткий активный стейт, мягкий hover */
+.stTabs [data-baseweb="tab-list"] { gap: 6px; }
+.stTabs [data-baseweb="tab"] {
+    border-radius: 8px 8px 0 0 !important;
+    transition: color 0.12s ease, background-color 0.12s ease;
+}
+.stTabs [data-baseweb="tab"]:hover { color: var(--primary-color, #6C5CE7) !important; }
+
+/* Инпуты/селекты: скругление + фокус-ринг брендового цвета */
+.stTextInput input,
+.stNumberInput input,
+.stTextArea textarea,
+.stSelectbox [data-baseweb="select"] > div {
+    border-radius: 10px !important;
+}
+.stTextInput input:focus,
+.stNumberInput input:focus,
+.stTextArea textarea:focus {
+    border-color: var(--primary-color, #6C5CE7) !important;
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.25) !important;
+}
+
+/* Прогресс-бар */
+.stProgress > div > div > div { border-radius: 6px !important; }
+
+/* Скроллбар (тёмный) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+    background: #2A2E3D; border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: #3A3F52; }
 </style>
 """
-st.markdown(streamlit_style, unsafe_allow_html=True)
+st.markdown(custom_css, unsafe_allow_html=True)
 
 # 定义资源目录
 font_dir = os.path.join(root_dir, "resource", "fonts")
