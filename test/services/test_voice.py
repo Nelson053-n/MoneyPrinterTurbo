@@ -392,7 +392,6 @@ class TestVoiceService(unittest.TestCase):
         with patch("google.generativeai.configure"), patch(
             "google.generativeai.GenerativeModel", _FakeModel
         ), patch.object(vs.config, "app", dict(vs.config.app, gemini_api_key="test-key")):
-            os.makedirs(temp_dir, exist_ok=True)
             sub_maker = vs.gemini_tts(
                 text=text,
                 voice_name="Zephyr",

@@ -8,9 +8,13 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1
 
 # Build toolchain needed to compile any sdist-only wheels.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        git \
+# Retry apt up to 3 times to survive transient mirror/network failures.
+RUN for i in 1 2 3; do \
+        apt-get update && apt-get install -y --no-install-recommends \
+            build-essential \
+            git \
+        && break || { echo "apt attempt $i failed, retrying..."; sleep 5; }; \
+    done \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
@@ -29,9 +33,13 @@ ENV PYTHONPATH="/MoneyPrinterTurbo" \
     PYTHONUNBUFFERED=1
 
 # Runtime system binaries ONLY (moviepy needs ffmpeg; app needs imagemagick).
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        ffmpeg \
-        imagemagick \
+# Retry apt up to 3 times to survive transient mirror/network failures.
+RUN for i in 1 2 3; do \
+        apt-get update && apt-get install -y --no-install-recommends \
+            ffmpeg \
+            imagemagick \
+        && break || { echo "apt attempt $i failed, retrying..."; sleep 5; }; \
+    done \
     && rm -rf /var/lib/apt/lists/*
 
 # ImageMagick policy fix (bullseye ships ImageMagick 6 -> /etc/ImageMagick-6).

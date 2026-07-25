@@ -1112,8 +1112,9 @@ def gemini_tts(
             return None
         
         # 导出为MP3格式
+        ensure_file_path_exists(voice_file)
         audio_segment.export(voice_file, format="mp3")
-        
+
         logger.info(f"completed, output file: {voice_file}")
         
         # Gemini 拿不到 edge_tts 那种逐词边界事件，因此这里退回到

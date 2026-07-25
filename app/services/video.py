@@ -695,7 +695,7 @@ def combine_videos(
         except Exception as e:
             logger.error(
                 f"failed to process clip {i+1} "
-                f"(source: {subclipped_item.file_path}): {str(e)}"
+                f"(source: {subclipped_item.source_file_path}): {str(e)}"
             )
             continue
     
