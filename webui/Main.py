@@ -44,93 +44,204 @@ st.set_page_config(
 
 
 custom_css = """
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..600&display=swap" rel="stylesheet">
 <style>
-/* ---- Визуальная полировка: только косметика, без изменения layout ---- */
-
-/* Отступы основного контента */
-.block-container {
-    padding-top: 2.2rem !important;
-    padding-bottom: 3rem !important;
+/* ============================================================
+   Светлая тема Linear-стиля. Визуал: типографика, карточки,
+   кнопки, expander/tabs, инпуты, шапка. Логику не трогаем.
+   Токены темы (--primary-color и т.д.) инжектит Streamlit;
+   ниже — свои переменные с fallback-значениями.
+   ============================================================ */
+:root {
+    --brand: #5E5CE6;
+    --brand-strong: #4B49C8;
+    --brand-soft: rgba(94, 92, 230, 0.10);
+    --ink: #1D1D2C;
+    --ink-muted: #6A6A82;
+    --surface: #FFFFFF;
+    --canvas: #FBFBFD;
+    --hairline: #E7E7EF;
+    --hairline-strong: #D8D8E4;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --shadow-sm: 0 1px 2px rgba(29, 29, 44, 0.04), 0 1px 3px rgba(29, 29, 44, 0.06);
+    --shadow-md: 0 2px 4px rgba(29, 29, 44, 0.04), 0 8px 24px rgba(29, 29, 44, 0.08);
+    --shadow-brand: 0 1px 2px rgba(75, 73, 200, 0.20), 0 6px 20px rgba(94, 92, 230, 0.28);
 }
 
-/* Заголовки */
-h1 { padding-top: 0 !important; letter-spacing: -0.01em; }
-h2, h3 { letter-spacing: -0.005em; }
-
-/* Кнопки: скругление, плавный hover-подъём */
-.stButton > button,
-.stDownloadButton > button {
-    border-radius: 10px !important;
-    border: 1px solid var(--border-color, #2A2E3D) !important;
-    transition: transform 0.06s ease, box-shadow 0.15s ease, border-color 0.15s ease, filter 0.15s ease !important;
+/* ---- Типографика ---- */
+html, body, [class*="css"], .stApp, [data-testid="stAppViewContainer"] {
+    font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv01", "ss01", "tnum";
+}
+h1, h2, h3, h4 {
+    font-family: "Instrument Sans", -apple-system, sans-serif !important;
+    color: var(--ink) !important;
     font-weight: 600 !important;
 }
-.stButton > button:hover,
-.stDownloadButton > button:hover {
-    border-color: var(--primary-color, #6C5CE7) !important;
-    box-shadow: 0 2px 10px rgba(108, 92, 231, 0.25) !important;
+h1 { padding-top: 0 !important; letter-spacing: -0.028em; font-weight: 650 !important; }
+h2 { letter-spacing: -0.02em; }
+h3 { letter-spacing: -0.014em; }
+p, li, label, .stMarkdown { color: var(--ink); }
+
+/* ---- Холст: чуть больше воздуха ---- */
+.stApp { background: var(--canvas); }
+.block-container {
+    padding-top: 1.4rem !important;
+    padding-bottom: 4rem !important;
+    max-width: 1180px;
+}
+
+/* ---- Фирменная шапка (рендерится через st.markdown в коде) ---- */
+.mpt-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 4px 0 18px 0;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--hairline);
+}
+.mpt-logo {
+    width: 40px; height: 40px; flex: none;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #6E6CF0 0%, #5E5CE6 55%, #4B49C8 100%);
+    box-shadow: var(--shadow-brand);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 20px; font-weight: 700;
+}
+.mpt-title { display: flex; flex-direction: column; line-height: 1.15; }
+.mpt-title .t-main {
+    font-size: 1.35rem; font-weight: 650; color: var(--ink);
+    letter-spacing: -0.02em;
+}
+.mpt-title .t-sub {
+    font-size: 0.82rem; color: var(--ink-muted); font-weight: 500;
+    letter-spacing: 0;
+}
+.mpt-badge {
+    margin-left: auto;
+    font-size: 0.72rem; font-weight: 600; color: var(--brand-strong);
+    background: var(--brand-soft);
+    padding: 4px 10px; border-radius: 999px;
+    border: 1px solid rgba(94, 92, 230, 0.18);
+}
+
+/* ---- Карточки-контейнеры (st.container(border=True)) ---- */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: var(--surface) !important;
+    border: 1px solid var(--hairline) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow-sm) !important;
+    padding: 4px 2px !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+[data-testid="stVerticalBlockBorderWrapper"]:hover {
+    box-shadow: var(--shadow-md) !important;
+    border-color: var(--hairline-strong) !important;
+}
+
+/* ---- Кнопки ---- */
+.stButton > button, .stDownloadButton > button {
+    border-radius: var(--radius-sm) !important;
+    border: 1px solid var(--hairline-strong) !important;
+    background: var(--surface) !important;
+    color: var(--ink) !important;
+    font-weight: 550 !important;
+    padding: 0.45rem 1.05rem !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: transform 0.08s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease !important;
+}
+.stButton > button:hover, .stDownloadButton > button:hover {
+    border-color: var(--brand) !important;
+    color: var(--brand-strong) !important;
+    box-shadow: var(--shadow-md) !important;
     transform: translateY(-1px) !important;
 }
-.stButton > button:active,
-.stDownloadButton > button:active {
-    transform: translateY(0) !important;
+.stButton > button:active, .stDownloadButton > button:active { transform: translateY(0) !important; }
+
+/* Primary — плотный брендовый */
+.stButton > button[kind="primary"] {
+    background: linear-gradient(180deg, #6462EA 0%, #5E5CE6 100%) !important;
+    border: 1px solid var(--brand-strong) !important;
+    color: #fff !important;
+    box-shadow: var(--shadow-brand) !important;
 }
 .stButton > button[kind="primary"]:hover {
-    filter: brightness(1.08) !important;
+    background: linear-gradient(180deg, #6664F0 0%, #5654E0 100%) !important;
+    color: #fff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(75,73,200,0.24), 0 10px 28px rgba(94,92,230,0.34) !important;
 }
 
-/* Контейнеры с рамкой -> мягкие карточки */
-[data-testid="stVerticalBlockBorderWrapper"] {
-    border-radius: 14px !important;
-    border-color: var(--border-color, #2A2E3D) !important;
-}
-
-/* Expander: вид карточки */
+/* ---- Expander ---- */
 .stExpander {
-    border-radius: 12px !important;
-    border: 1px solid var(--border-color, #2A2E3D) !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--hairline) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow-sm) !important;
     overflow: hidden;
 }
-.stExpander summary,
-.stExpander [data-testid="stExpanderToggleIcon"] {
-    transition: background-color 0.12s ease, color 0.12s ease;
+.stExpander summary {
+    padding: 2px 4px !important;
+    transition: color 0.14s ease;
 }
-.stExpander summary:hover {
-    color: var(--primary-color, #6C5CE7) !important;
-}
-.stExpander summary p { font-weight: 600 !important; }
+.stExpander summary:hover { color: var(--brand-strong) !important; }
+.stExpander summary p { font-weight: 600 !important; letter-spacing: -0.01em; }
 
-/* Вкладки: чёткий активный стейт, мягкий hover */
-.stTabs [data-baseweb="tab-list"] { gap: 6px; }
+/* ---- Вкладки: pill-стиль ---- */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 4px;
+    background: #F1F1F6;
+    padding: 4px; border-radius: 12px;
+    border: 1px solid var(--hairline);
+}
+.stTabs [data-baseweb="tab-list"] { border-bottom: 1px solid var(--hairline) !important; }
 .stTabs [data-baseweb="tab"] {
-    border-radius: 8px 8px 0 0 !important;
-    transition: color 0.12s ease, background-color 0.12s ease;
+    border-radius: 8px !important;
+    padding: 6px 14px !important;
+    color: var(--ink-muted) !important;
+    font-weight: 550 !important;
+    transition: color 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
 }
-.stTabs [data-baseweb="tab"]:hover { color: var(--primary-color, #6C5CE7) !important; }
+.stTabs [data-baseweb="tab"]:hover { color: var(--ink) !important; }
+.stTabs [aria-selected="true"] {
+    background: var(--surface) !important;
+    color: var(--brand-strong) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+.stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"] { background: transparent !important; }
 
-/* Инпуты/селекты: скругление + фокус-ринг брендового цвета */
-.stTextInput input,
-.stNumberInput input,
-.stTextArea textarea,
-.stSelectbox [data-baseweb="select"] > div {
-    border-radius: 10px !important;
+/* ---- Инпуты / селекты ---- */
+.stTextInput input, .stNumberInput input, .stTextArea textarea,
+.stSelectbox [data-baseweb="select"] > div,
+.stMultiSelect [data-baseweb="select"] > div {
+    border-radius: var(--radius-sm) !important;
+    border-color: var(--hairline-strong) !important;
+    background: var(--surface) !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.stTextInput input:focus,
-.stNumberInput input:focus,
-.stTextArea textarea:focus {
-    border-color: var(--primary-color, #6C5CE7) !important;
-    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.25) !important;
+.stTextInput input:focus, .stNumberInput input:focus, .stTextArea textarea:focus {
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 3px var(--brand-soft) !important;
 }
 
-/* Прогресс-бар */
+/* ---- Слайдеры / прогресс ---- */
 .stProgress > div > div > div { border-radius: 6px !important; }
+[data-testid="stSlider"] [role="slider"] { box-shadow: 0 0 0 4px var(--brand-soft) !important; }
 
-/* Скроллбар (тёмный) */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb {
-    background: #2A2E3D; border-radius: 6px;
-}
-::-webkit-scrollbar-thumb:hover { background: #3A3F52; }
+/* ---- Алерты: мягче ---- */
+[data-testid="stAlert"] { border-radius: var(--radius-sm) !important; border: 1px solid var(--hairline) !important; }
+
+/* ---- Разделители ---- */
+hr { border-color: var(--hairline) !important; }
+
+/* ---- Скроллбар (светлый) ---- */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D6D6E2; border-radius: 8px; border: 2px solid var(--canvas); }
+::-webkit-scrollbar-thumb:hover { background: #BFBFCF; }
 </style>
 """
 st.markdown(custom_css, unsafe_allow_html=True)
@@ -205,7 +316,19 @@ locales = utils.load_locales(i18n_dir)
 title_col, lang_col = st.columns([3, 1])
 
 with title_col:
-    st.title(f"MoneyPrinterTurbo v{config.project_version}")
+    st.markdown(
+        f"""
+        <div class="mpt-header">
+            <div class="mpt-logo">MP</div>
+            <div class="mpt-title">
+                <span class="t-main">MoneyPrinterTurbo</span>
+                <span class="t-sub">AI-генератор коротких видео</span>
+            </div>
+            <span class="mpt-badge">v{config.project_version}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 with lang_col:
     display_languages = []
