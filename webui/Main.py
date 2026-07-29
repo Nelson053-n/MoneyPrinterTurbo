@@ -44,10 +44,8 @@ st.set_page_config(
 
 
 custom_css = """
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..600&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..600&display=swap');
 /* ============================================================
    Светлая тема Linear-стиля. Визуал: типографика, карточки,
    кнопки, expander/tabs, инпуты, шапка. Логику не трогаем.
@@ -317,16 +315,14 @@ title_col, lang_col = st.columns([3, 1])
 
 with title_col:
     st.markdown(
-        f"""
-        <div class="mpt-header">
-            <div class="mpt-logo">MP</div>
-            <div class="mpt-title">
-                <span class="t-main">MoneyPrinterTurbo</span>
-                <span class="t-sub">AI-генератор коротких видео</span>
-            </div>
-            <span class="mpt-badge">v{config.project_version}</span>
-        </div>
-        """,
+        f'<div class="mpt-header">'
+        f'<div class="mpt-logo">MP</div>'
+        f'<div class="mpt-title">'
+        f'<span class="t-main">MoneyPrinterTurbo</span>'
+        f'<span class="t-sub">AI-генератор коротких видео</span>'
+        f'</div>'
+        f'<span class="mpt-badge">v{config.project_version}</span>'
+        f'</div>',
         unsafe_allow_html=True,
     )
 
