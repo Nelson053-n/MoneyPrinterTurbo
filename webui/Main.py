@@ -45,7 +45,6 @@ st.set_page_config(
 
 custom_css = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..600&display=swap');
 /* ============================================================
    Светлая тема Linear-стиля. Визуал: типографика, карточки,
    кнопки, expander/tabs, инпуты, шапка. Логику не трогаем.
@@ -71,13 +70,13 @@ custom_css = """
 
 /* ---- Типографика ---- */
 html, body, [class*="css"], .stApp, [data-testid="stAppViewContainer"] {
-    font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", "Helvetica Neue", sans-serif !important;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     font-feature-settings: "cv01", "ss01", "tnum";
 }
 h1, h2, h3, h4 {
-    font-family: "Instrument Sans", -apple-system, sans-serif !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Display", sans-serif !important;
     color: var(--ink) !important;
     font-weight: 600 !important;
 }
@@ -88,11 +87,14 @@ p, li, label, .stMarkdown { color: var(--ink); }
 
 /* ---- Холст: чуть больше воздуха ---- */
 .stApp { background: var(--canvas); }
+/* padding-top учитывает прозрачный Streamlit-хедер (~60px), иначе шапка заезжает под него */
 .block-container {
-    padding-top: 1.4rem !important;
+    padding-top: 4.5rem !important;
     padding-bottom: 4rem !important;
     max-width: 1180px;
 }
+/* Streamlit-хедер (панель Deploy) — делаем фон под цвет холста, чтобы не перекрывал контент визуально */
+[data-testid="stHeader"] { background: transparent !important; }
 
 /* ---- Фирменная шапка (рендерится через st.markdown в коде) ---- */
 .mpt-header {
